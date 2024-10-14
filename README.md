@@ -89,13 +89,13 @@ Below is the Entity-Relationship Diagram (ERD) that describes the structure of t
 Here are some screenshots of the application:
 
 ### Home Page (Unauthenticated Users)
-![Home Page](screenshots/homepage.png)
+![Home Page](home.png)
 
-### Categories and Articles
-![Categories and Articles](screenshots/categories_articles.png)
+### List of Articles
+![Categories and Articles](articles.png)
 
-### Create Article Page (Authenticated Users)
-![Create Article Page](screenshots/create_article.png)
+### Management Article Page (Authenticated Users)
+![Create Article Page](author.png)
 
 ## Dependencies
 
