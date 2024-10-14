@@ -15,7 +15,7 @@ The application follows the standard Laravel structure with `Controllers`, `Mode
 
 ## Database Design
 
-### ERD Diagram
+### ERD Diagram 
 Below is the Entity-Relationship Diagram (ERD) that describes the structure of the application's database.
 
 ![ERD Diagram](erd.png)

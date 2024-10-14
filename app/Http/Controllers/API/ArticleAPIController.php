@@ -10,9 +10,11 @@ use Illuminate\Support\Facades\Auth;
 
 class ArticleAPIController extends Controller
 {
+    // Get all articles
     public function index()
     {
         $articles = Article::all();
+
         return response()->json([
             'code' => 200,
             'data' => $articles,
@@ -20,8 +22,17 @@ class ArticleAPIController extends Controller
         ], 200);
     }
 
+    // Store a new article (authenticated users only)
     public function store(Request $request)
     {
+        // Check if Authorization header is present
+        if (!$request->hasHeader('Authorization')) {
+            return response()->json([
+                'code' => 400,
+                'message' => 'Bad Request: Authorization header is missing.'
+            ], 400);
+        }
+        
         // Check if user is authenticated
         if (!Auth::guard('api')->check()) {
             return response()->json([
@@ -30,6 +41,7 @@ class ArticleAPIController extends Controller
             ], 401);
         }
 
+        // Validate the incoming request
         $validator = Validator::make($request->all(), [
             'title' => 'required|string|max:255',
             'content' => 'required|string',
@@ -37,7 +49,6 @@ class ArticleAPIController extends Controller
             'category_id' => 'required|exists:categories,id',
         ]);
 
-        // Handle validation errors
         if ($validator->fails()) {
             return response()->json([
                 'code' => 422,
@@ -47,12 +58,16 @@ class ArticleAPIController extends Controller
         }
 
         // Create and save the article
-        $article = new Article;
+        $article = new Article();
         $article->title = $request->title;
         $article->content = $request->content;
+
+        // Handle image upload
         $fileName = time() . '.' . $request->image->getClientOriginalExtension();
         $request->image->move(public_path('images'), $fileName);
         $article->image = $fileName;
+
+        // Save user and category
         $article->user_id = Auth::guard('api')->user()->id;
         $article->category_id = $request->category_id;
         $article->save();
@@ -64,8 +79,18 @@ class ArticleAPIController extends Controller
         ], 201);
     }
 
-    public function show(Article $article)
+    // Show a specific article by ID
+    public function show($id)
     {
+        $article = Article::find($id);
+
+        if (!$article) {
+            return response()->json([
+                'code' => 404,
+                'message' => 'Article not found.'
+            ], 404);
+        }
+
         return response()->json([
             'code' => 200,
             'data' => [
@@ -79,8 +104,17 @@ class ArticleAPIController extends Controller
         ], 200);
     }
 
-    public function update(Request $request, Article $article)
+    // Update an existing article by ID
+    public function update(Request $request, $id)
     {
+        // Check if Authorization header is present
+        if (!$request->hasHeader('Authorization')) {
+            return response()->json([
+                'code' => 400,
+                'message' => 'Bad Request: Authorization header is missing.'
+            ], 400);
+        }
+        
         // Check if user is authenticated
         if (!Auth::guard('api')->check()) {
             return response()->json([
@@ -89,6 +123,16 @@ class ArticleAPIController extends Controller
             ], 401);
         }
 
+        $article = Article::find($id);
+
+        if (!$article) {
+            return response()->json([
+                'code' => 404,
+                'message' => 'Article not found.'
+            ], 404);
+        }
+
+        // Validate the request data
         $validator = Validator::make($request->all(), [
             'title' => 'required|string|max:255',
             'content' => 'required|string',
@@ -96,7 +140,6 @@ class ArticleAPIController extends Controller
             'category_id' => 'required|exists:categories,id',
         ]);
 
-        // Handle validation errors
         if ($validator->fails()) {
             return response()->json([
                 'code' => 422,
@@ -108,9 +151,13 @@ class ArticleAPIController extends Controller
         // Update the article
         $article->title = $request->title;
         $article->content = $request->content;
+
+        // Handle image upload
         $fileName = time() . '.' . $request->image->getClientOriginalExtension();
         $request->image->move(public_path('images'), $fileName);
         $article->image = $fileName;
+
+        // Update user and category
         $article->user_id = Auth::guard('api')->user()->id;
         $article->category_id = $request->category_id;
         $article->save();
@@ -122,8 +169,17 @@ class ArticleAPIController extends Controller
         ], 200);
     }
 
-    public function destroy(Article $article)
+    // Delete an article by ID
+    public function destroy(Request $request, $id)
     {
+        // Check if Authorization header is present
+        if (!$request->hasHeader('Authorization')) {
+            return response()->json([
+                'code' => 400,
+                'message' => 'Bad Request: Authorization header is missing.'
+            ], 400);
+        }
+
         // Check if user is authenticated
         if (!Auth::guard('api')->check()) {
             return response()->json([
@@ -132,7 +188,18 @@ class ArticleAPIController extends Controller
             ], 401);
         }
 
+        $article = Article::find($id);
+
+        if (!$article) {
+            return response()->json([
+                'code' => 404,
+                'message' => 'Article not found.'
+            ], 404);
+        }
+
+        // Delete the article
         $article->delete();
+
         return response()->json([
             'code' => 204,
             'message' => 'Article deleted successfully.'

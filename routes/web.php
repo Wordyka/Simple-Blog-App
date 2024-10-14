@@ -28,11 +28,11 @@ Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name
 
 Auth::routes();
 
-Route::get('/login', function() {
+Route::get('/masuk', function() {
     return view('auth.login');
 })->name('masuk');
 
-Route::get('/register', function() {
+Route::get('/daftar', function() {
     return view('auth.register');
 })->name('daftar');
 

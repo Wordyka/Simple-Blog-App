@@ -23,7 +23,7 @@ class UsersTableSeeder extends Seeder
             User::insert([
                 'name' => $faker->name,
                 'email' => $faker->unique()->safeEmail,
-                'role' => $faker->randomElement(['admin', '']),
+                'role' => 'admin',
                 'email_verified_at' => $faker->optional()->dateTime(),
                 'password' => Hash::make('password'), // You can hash a default password
                 'remember_token' => Str::random(10),

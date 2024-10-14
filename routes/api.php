@@ -22,9 +22,9 @@ Route::prefix('v1')->group(function () {
 
     // Publicly accessible article and category endpoints
     Route::get('categories', 'API\CategoryAPIController@index');
-    Route::get('categories/{category}', 'API\CategoryAPIController@show');
+    Route::get('categories/{id}', 'API\CategoryAPIController@show');
     Route::get('articles', 'API\ArticleAPIController@index');
-    Route::get('articles/{article}', 'API\ArticleAPIController@show');
+    Route::get('articles/{id}', 'API\ArticleAPIController@show');
 
     // Protected routes (require authentication)
     Route::middleware('auth:api', 'admin')->group(function () {
@@ -33,11 +33,11 @@ Route::prefix('v1')->group(function () {
 
         // Routes for creating, updating, and deleting categories and articles
         Route::post('categories', 'API\CategoryAPIController@store');
-        Route::put('categories/{category}', 'API\CategoryAPIController@update');
-        Route::delete('categories/{category}', 'API\CategoryAPIController@destroy');
+        Route::put('categories/{id}', 'API\CategoryAPIController@update');
+        Route::delete('categories/{id}', 'API\CategoryAPIController@destroy');
 
         Route::post('articles', 'API\ArticleAPIController@store');
-        Route::put('articles/{article}', 'API\ArticleAPIController@update');
-        Route::delete('articles/{article}', 'API\ArticleAPIController@destroy');
+        Route::put('articles/{id}', 'API\ArticleAPIController@update');
+        Route::delete('articles/{id}', 'API\ArticleAPIController@destroy');
     });
 });

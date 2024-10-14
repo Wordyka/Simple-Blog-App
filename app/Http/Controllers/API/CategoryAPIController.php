@@ -10,10 +10,11 @@ use Illuminate\Support\Facades\Auth;
 
 class CategoryAPIController extends Controller
 {
+    // Get all categories
     public function index()
     {
         $categories = Category::all();
-        
+
         return response()->json([
             'code' => 200,
             'data' => $categories,
@@ -21,8 +22,36 @@ class CategoryAPIController extends Controller
         ], 200);
     }
 
+    // Get a single category by ID
+    public function show($id)
+    {
+        $category = Category::find($id);
+
+        if (!$category) {
+            return response()->json([
+                'code' => 404,
+                'message' => 'Category not found.'
+            ], 404);
+        }
+
+        return response()->json([
+            'code' => 200,
+            'data' => $category,
+            'message' => 'Category retrieved successfully.'
+        ], 200);
+    }
+
+    // Create a new category (authenticated users only)
     public function store(Request $request)
     {
+        // Check if Authorization header is present
+        if (!$request->hasHeader('Authorization')) {
+            return response()->json([
+                'code' => 400,
+                'message' => 'Bad Request: Authorization header is missing.'
+            ], 400);
+        }
+
         // Check if user is authenticated
         if (!Auth::guard('api')->check()) {
             return response()->json([
@@ -57,17 +86,17 @@ class CategoryAPIController extends Controller
         ], 201);
     }
 
-    public function show(Category $category)
+    // Update an existing category by ID
+    public function update(Request $request, $id)
     {
-        return response()->json([
-            'code' => 200,
-            'data' => $category,
-            'message' => 'Category retrieved successfully.'
-        ], 200);
-    }
+        // Check if Authorization header is present
+        if (!$request->hasHeader('Authorization')) {
+            return response()->json([
+                'code' => 400,
+                'message' => 'Bad Request: Authorization header is missing.'
+            ], 400);
+        }
 
-    public function update(Request $request, Category $category)
-    {
         // Check if user is authenticated
         if (!Auth::guard('api')->check()) {
             return response()->json([
@@ -76,11 +105,21 @@ class CategoryAPIController extends Controller
             ], 401);
         }
 
+        // Find the category by ID
+        $category = Category::find($id);
+
+        if (!$category) {
+            return response()->json([
+                'code' => 404,
+                'message' => 'Category not found.'
+            ], 404);
+        }
+
+        // Validate request data
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
         ]);
 
-        // Handle validation errors
         if ($validator->fails()) {
             return response()->json([
                 'code' => 422,
@@ -91,6 +130,7 @@ class CategoryAPIController extends Controller
 
         // Update the category
         $category->name = $request->name;
+        $category->user_id = Auth::guard('api')->user()->id;
         $category->save();
 
         return response()->json([
@@ -100,8 +140,17 @@ class CategoryAPIController extends Controller
         ], 200);
     }
 
-    public function destroy(Category $category)
+    // Delete a category by ID
+    public function destroy(Request $request, $id)
     {
+        // Check if Authorization header is present
+        if (!$request->hasHeader('Authorization')) {
+            return response()->json([
+                'code' => 400,
+                'message' => 'Bad Request: Authorization header is missing.'
+            ], 400);
+        }
+
         // Check if user is authenticated
         if (!Auth::guard('api')->check()) {
             return response()->json([
@@ -110,6 +159,17 @@ class CategoryAPIController extends Controller
             ], 401);
         }
 
+        // Find the category by ID
+        $category = Category::find($id);
+
+        if (!$category) {
+            return response()->json([
+                'code' => 404,
+                'message' => 'Category not found.'
+            ], 404);
+        }
+
+        // Delete the category
         $category->delete();
 
         return response()->json([
