@@ -173,8 +173,8 @@ class CategoryAPIController extends Controller
         $category->delete();
 
         return response()->json([
-            'code' => 204,
+            'code' => 200,
             'message' => 'Category deleted successfully.'
-        ], 204);
+        ], 200);
     }
 }

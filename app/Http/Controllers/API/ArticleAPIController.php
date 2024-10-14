@@ -32,7 +32,7 @@ class ArticleAPIController extends Controller
                 'message' => 'Bad Request: Authorization header is missing.'
             ], 400);
         }
-        
+
         // Check if user is authenticated
         if (!Auth::guard('api')->check()) {
             return response()->json([
@@ -45,7 +45,7 @@ class ArticleAPIController extends Controller
         $validator = Validator::make($request->all(), [
             'title' => 'required|string|max:255',
             'content' => 'required|string',
-            'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'image' => 'required|string',
             'category_id' => 'required|exists:categories,id',
         ]);
 
@@ -61,11 +61,7 @@ class ArticleAPIController extends Controller
         $article = new Article();
         $article->title = $request->title;
         $article->content = $request->content;
-
-        // Handle image upload
-        $fileName = time() . '.' . $request->image->getClientOriginalExtension();
-        $request->image->move(public_path('images'), $fileName);
-        $article->image = $fileName;
+        $article->image = $request->image;
 
         // Save user and category
         $article->user_id = Auth::guard('api')->user()->id;
@@ -136,7 +132,7 @@ class ArticleAPIController extends Controller
         $validator = Validator::make($request->all(), [
             'title' => 'required|string|max:255',
             'content' => 'required|string',
-            'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'image' => 'required|string',
             'category_id' => 'required|exists:categories,id',
         ]);
 
@@ -151,13 +147,7 @@ class ArticleAPIController extends Controller
         // Update the article
         $article->title = $request->title;
         $article->content = $request->content;
-
-        // Handle image upload
-        $fileName = time() . '.' . $request->image->getClientOriginalExtension();
-        $request->image->move(public_path('images'), $fileName);
-        $article->image = $fileName;
-
-        // Update user and category
+        $article->image = $request->image;
         $article->user_id = Auth::guard('api')->user()->id;
         $article->category_id = $request->category_id;
         $article->save();
@@ -201,8 +191,8 @@ class ArticleAPIController extends Controller
         $article->delete();
 
         return response()->json([
-            'code' => 204,
+            'code' => 200,
             'message' => 'Article deleted successfully.'
-        ], 204);
+        ], 200);
     }
 }
